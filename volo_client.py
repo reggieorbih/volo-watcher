@@ -2,7 +2,6 @@ import requests
 import json
 from datetime import datetime, timezone
 from urllib.parse import quote_plus
-from urllib.parse import quote_plus
 
 # API endpoint
 URL = "https://volosports.com/hapi/v1/graphql"

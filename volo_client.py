@@ -1,6 +1,8 @@
 import requests
 import json
 from datetime import datetime, timezone
+from urllib.parse import quote_plus
+from urllib.parse import quote_plus
 
 # API endpoint
 URL = "https://volosports.com/hapi/v1/graphql"
@@ -57,6 +59,7 @@ query DiscoverDaily($where: discover_daily_bool_exp!, $limit: Int = 15, $offset:
         }
         __typename
       }
+      deep_link
       __typename
     }
     league_id
@@ -203,7 +206,7 @@ def format_game(game: dict) -> str:
     # Parse and format the date
     try:
         start_dt = datetime.fromisoformat(start_raw)
-        date_label = start_dt.strftime("%A, %B %-d, %Y")
+        date_label = start_dt.strftime("%A, %B %-d")
     except Exception:
         date_label = start_raw
 
@@ -211,13 +214,14 @@ def format_game(game: dict) -> str:
     venue_name = venue.get("shorthand_name", "Unknown Venue")
     address = venue.get("formatted_address", "")
     neighborhood_name = neighborhood.get("name", "")
+    game_id = game.get("game_id", "")
+    game_url = g.get("deep_link") or f"https://volosports.com/game/{game_id}"
+    maps_url = f"https://maps.apple.com/?q={quote_plus(address)}"
 
     return (
-        f"  📅 {date_label}  {start_time_str}–{end_time_str}\n"
-        f"  ⚽ {sport}\n"
-        f"  📍 {venue_name} ({neighborhood_name})\n"
-        f"     {address}\n"
-        f"  🟢 {spots} spot(s) available\n"
+        f"📍 [{venue_name} ({neighborhood_name})]({maps_url})\n"
+        f"📅 {date_label}  {start_time_str}–{end_time_str}\n"
+        f"🟢 [Register]({game_url})\n"
     )
 
 

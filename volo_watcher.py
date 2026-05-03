@@ -54,6 +54,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("apscheduler").setLevel(logging.WARNING)
 
 
 # ── Config from environment variables ─────────────────────────────────────────
@@ -135,6 +136,7 @@ async def run_check(context: ContextTypes.DEFAULT_TYPE):
             chat_id=config["chat_id"],
             text=message,
             parse_mode="Markdown",
+            disable_web_page_preview=True,
         )
         state["seen_games"] = seen
         save_state(state)
@@ -203,7 +205,7 @@ async def cmd_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for i, game in enumerate(games, 1):
         lines.append(f"*Game #{i}*\n{format_game(game)}")
 
-    await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
+    await update.message.reply_text("\n".join(lines), parse_mode="Markdown", disable_web_page_preview=True)
 
 
 async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE):

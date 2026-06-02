@@ -2,7 +2,7 @@ import requests
 import json
 from datetime import datetime, timezone
 from urllib.parse import quote_plus
-from urllib.parse import quote_plus
+from zoneinfo import ZoneInfo
 
 # API endpoint
 URL = "https://volosports.com/hapi/v1/graphql"
@@ -203,12 +203,18 @@ def format_game(game: dict) -> str:
     start_time_str = game.get("event_start_time_str", "")
     end_time_str = game.get("event_end_time_str", "")
 
-    # Parse and format the date
+    # Prefer the full game start timestamp and convert it to Eastern Time.
     try:
-        start_dt = datetime.fromisoformat(start_raw)
-        date_label = start_dt.strftime("%A, %B %-d")
+        eastern = ZoneInfo("America/New_York")
+        start_time_iso = g.get("start_time", "")
+        start_dt = datetime.fromisoformat(start_time_iso.replace("Z", "+00:00"))
+        start_dt_et = start_dt.astimezone(eastern)
+        date_label = start_dt_et.strftime("%A, %B %-d")
     except Exception:
-        date_label = start_raw
+        try:
+            date_label = datetime.fromisoformat(start_raw).strftime("%A, %B %-d")
+        except Exception:
+            date_label = start_raw
 
     spots = capacity.get("total_available_spots", "?")
     venue_name = venue.get("shorthand_name", "Unknown Venue")

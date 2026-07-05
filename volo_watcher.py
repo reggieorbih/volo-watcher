@@ -124,11 +124,11 @@ async def run_check(context: ContextTypes.DEFAULT_TYPE):
             new_games.append(g)
 
     if new_games:
-        lines = [f"🔔 *{len(new_games)} drop-in slot(s) available!*\n"]
+        lines = []
         for i, game in enumerate(new_games, 1):
             gid = game["game_id"]
             current_spots = game.get("game", {}).get("drop_in_capacity", {}).get("total_available_spots", 0)
-            lines.append(f"*Game #{i}*\n{format_game(game)}")
+            lines.append(format_game(game))
             seen[gid] = current_spots
 
         message = "\n".join(lines)

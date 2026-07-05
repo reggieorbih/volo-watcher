@@ -203,7 +203,7 @@ async def cmd_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     lines = [f"Found *{len(games)}* available game(s):\n"]
     for i, game in enumerate(games, 1):
-        lines.append(f"*Game #{i}*\n{format_game(game)}")
+        lines.append(format_game(game))
 
     await update.message.reply_text("\n".join(lines), parse_mode="Markdown", disable_web_page_preview=True)
 

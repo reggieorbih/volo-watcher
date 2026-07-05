@@ -200,39 +200,25 @@ def format_game(game: dict) -> str:
     """Format a single game entry for display."""
     g = game.get("game", {})
     venue = g.get("venueByVenue", {})
-    neighborhood = venue.get("neighborhoodByNeighborhoodId", {})
-    capacity = g.get("drop_in_capacity", {})
-    sport = g.get("leagueByLeague", {}).get("sportBySport", {}).get("name", "Unknown")
 
     start_raw = game.get("event_start_date", "")
     start_time_str = game.get("event_start_time_str", "")
     end_time_str = game.get("event_end_time_str", "")
 
     # Prefer the full game start timestamp and convert it to Eastern Time.
-<<<<<<< Updated upstream
-=======
     event_date = None
->>>>>>> Stashed changes
     try:
         eastern = ZoneInfo("America/New_York")
         start_time_iso = g.get("start_time", "")
         start_dt = datetime.fromisoformat(start_time_iso.replace("Z", "+00:00"))
         start_dt_et = start_dt.astimezone(eastern)
-<<<<<<< Updated upstream
+        event_date = start_dt_et.date()
         date_label = start_dt_et.strftime("%A, %B %-d")
     except Exception:
         try:
-            date_label = datetime.fromisoformat(start_raw).strftime("%A, %B %-d")
-        except Exception:
-            date_label = start_raw
-=======
-      event_date = start_dt_et.date()
-        date_label = start_dt_et.strftime("%A, %B %-d")
-    except Exception:
-        try:
-        parsed_start = datetime.fromisoformat(start_raw)
-        event_date = parsed_start.date()
-        date_label = parsed_start.strftime("%A, %B %-d")
+          parsed_start = datetime.fromisoformat(start_raw)
+          event_date = parsed_start.date()
+          date_label = parsed_start.strftime("%A, %B %-d")
         except Exception:
             date_label = start_raw
 
@@ -241,23 +227,20 @@ def format_game(game: dict) -> str:
       try:
         today_et = datetime.now(ZoneInfo("America/New_York")).date()
         if event_date == today_et:
-          date_label = "today"
+          date_label = "Today"
         elif event_date == (today_et + timedelta(days=1)):
-          date_label = "tomorrow"
+          date_label = "Tomorrow"
       except Exception:
         pass
->>>>>>> Stashed changes
 
-    spots = capacity.get("total_available_spots", "?")
     venue_name = venue.get("shorthand_name", "Unknown Venue")
     address = venue.get("formatted_address", "")
-    neighborhood_name = neighborhood.get("name", "")
     game_id = game.get("game_id", "")
     game_url = g.get("deep_link") or f"https://volosports.com/game/{game_id}"
     maps_url = f"https://maps.apple.com/?q={quote_plus(address)}"
 
     return (
-        f"[{venue_name}]({maps_url})\n"
+        f"[{venue_name}]({game_url})\n"
         f"{date_label}  {start_time_str}–{end_time_str}\n"
         f"[Register]({game_url})\n"
     )

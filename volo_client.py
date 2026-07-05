@@ -1,6 +1,6 @@
 import requests
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from urllib.parse import quote_plus
 from zoneinfo import ZoneInfo
 
@@ -155,6 +155,11 @@ def build_payload(
                 "game_id": {"_is_null": False},
                 "game": {
                     "start_time": {"_gte": now_utc},
+                  "venueByVenue": {
+                    "_id": {
+                      "_neq": "ac8edc35-95a0-48f0-8860-98e83621428b"
+                    }
+                  },
                     "drop_in_capacity": {
                         "_and": [
                             {"total_male_eligible_spots": {"_gte": min_male_spots}}
@@ -204,17 +209,44 @@ def format_game(game: dict) -> str:
     end_time_str = game.get("event_end_time_str", "")
 
     # Prefer the full game start timestamp and convert it to Eastern Time.
+<<<<<<< Updated upstream
+=======
+    event_date = None
+>>>>>>> Stashed changes
     try:
         eastern = ZoneInfo("America/New_York")
         start_time_iso = g.get("start_time", "")
         start_dt = datetime.fromisoformat(start_time_iso.replace("Z", "+00:00"))
         start_dt_et = start_dt.astimezone(eastern)
+<<<<<<< Updated upstream
         date_label = start_dt_et.strftime("%A, %B %-d")
     except Exception:
         try:
             date_label = datetime.fromisoformat(start_raw).strftime("%A, %B %-d")
         except Exception:
             date_label = start_raw
+=======
+      event_date = start_dt_et.date()
+        date_label = start_dt_et.strftime("%A, %B %-d")
+    except Exception:
+        try:
+        parsed_start = datetime.fromisoformat(start_raw)
+        event_date = parsed_start.date()
+        date_label = parsed_start.strftime("%A, %B %-d")
+        except Exception:
+            date_label = start_raw
+
+    # Override the date label for same-day/next-day games.
+    if event_date is not None:
+      try:
+        today_et = datetime.now(ZoneInfo("America/New_York")).date()
+        if event_date == today_et:
+          date_label = "today"
+        elif event_date == (today_et + timedelta(days=1)):
+          date_label = "tomorrow"
+      except Exception:
+        pass
+>>>>>>> Stashed changes
 
     spots = capacity.get("total_available_spots", "?")
     venue_name = venue.get("shorthand_name", "Unknown Venue")
@@ -225,9 +257,9 @@ def format_game(game: dict) -> str:
     maps_url = f"https://maps.apple.com/?q={quote_plus(address)}"
 
     return (
-        f"📍 [{venue_name} ({neighborhood_name})]({maps_url})\n"
-        f"📅 {date_label}  {start_time_str}–{end_time_str}\n"
-        f"🟢 [Register]({game_url})\n"
+        f"[{venue_name}]({maps_url})\n"
+        f"{date_label}  {start_time_str}–{end_time_str}\n"
+        f"[Register]({game_url})\n"
     )
 
 
@@ -250,7 +282,6 @@ def main():
     print(f"Found {len(games)} available game(s):\n")
     print("=" * 60)
     for i, game in enumerate(games, start=1):
-        print(f"Game #{i}")
         print(format_game(game))
         print("-" * 60)
 

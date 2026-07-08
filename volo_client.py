@@ -242,7 +242,6 @@ def format_game(game: dict) -> str:
     return (
         f"[{venue_name}]({game_url})\n"
         f"{date_label}  {start_time_str}–{end_time_str}\n"
-        f"[Register]({game_url})\n"
     )
 
 

@@ -1,8 +1,8 @@
 import requests
-import json
+# import json
 from datetime import datetime, timezone, timedelta
-from urllib.parse import quote_plus
 from zoneinfo import ZoneInfo
+# from urllib.parse import quote_plus
 
 # API endpoint
 URL = "https://volosports.com/hapi/v1/graphql"
@@ -62,11 +62,6 @@ query DiscoverDaily($where: discover_daily_bool_exp!, $limit: Int = 15, $offset:
       deep_link
       __typename
     }
-    league_id
-    league {
-      ...LeagueDetails
-      __typename
-    }
     event_start_date
     event_start_time_str
     event_end_time_str
@@ -79,57 +74,6 @@ query DiscoverDaily($where: discover_daily_bool_exp!, $limit: Int = 15, $offset:
     }
     __typename
   }
-}
-
-fragment LeagueDetails on leagues {
-  _id
-  name
-  display_name
-  program_type
-  start_date
-  is_premier
-  is_volo_pass_exclusive
-  start_time_estimate
-  end_time_estimate
-  banner_text
-  header
-  num_weeks_estimate
-  num_playoff_weeks_estimate
-  sportBySport {
-    _id
-    name
-    __typename
-  }
-  registrants_aggregate {
-    aggregate {
-      count
-      __typename
-    }
-    __typename
-  }
-  registrationByRegistration {
-    _id
-    max_registration_size
-    min_registration_size
-    __typename
-  }
-  neighborhoodByNeighborhood {
-    _id
-    name
-    __typename
-  }
-  venueByVenue {
-    _id
-    shorthand_name
-    formatted_address
-    __typename
-  }
-  organizationByOrganization {
-    _id
-    is_volo_pass_active
-    __typename
-  }
-  __typename
 }
 """
 
@@ -156,9 +100,9 @@ def build_payload(
                 "game": {
                     "start_time": {"_gte": now_utc},
                   "venueByVenue": {
-                    "_id": {
-                      "_neq": "ac8edc35-95a0-48f0-8860-98e83621428b"
-                    }
+                    "neighborhoodByNeighborhoodId": {"_id": {
+                      "_neq": "e099545e-6c9f-4fa6-8dc6-70242541f7af"
+                    }}
                   },
                     "drop_in_capacity": {
                         "_and": [
@@ -234,10 +178,9 @@ def format_game(game: dict) -> str:
         pass
 
     venue_name = venue.get("shorthand_name", "Unknown Venue")
-    address = venue.get("formatted_address", "")
-    game_id = game.get("game_id", "")
-    game_url = g.get("deep_link") or f"https://volosports.com/game/{game_id}"
-    maps_url = f"https://maps.apple.com/?q={quote_plus(address)}"
+    game_url = g.get("deep_link")
+    # address = venue.get("formatted_address", "")
+    # maps_url = f"https://maps.apple.com/?q={quote_plus(address)}"
 
     return (
         f"[{venue_name}]({game_url})\n"

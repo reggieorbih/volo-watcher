@@ -201,7 +201,7 @@ async def cmd_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("No drop-in games currently available.")
         return
 
-    lines = [f"Found *{len(games)}* available game(s):\n"]
+    lines = []
     for i, game in enumerate(games, 1):
         lines.append(format_game(game))
 

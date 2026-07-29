@@ -147,7 +147,6 @@ def format_game(game: dict) -> str:
 
     start_raw = game.get("event_start_date", "")
     start_time_str = game.get("event_start_time_str", "")
-    end_time_str = game.get("event_end_time_str", "")
 
     # Prefer the full game start timestamp and convert it to Eastern Time.
     event_date = None
@@ -182,9 +181,14 @@ def format_game(game: dict) -> str:
     # address = venue.get("formatted_address", "")
     # maps_url = f"https://maps.apple.com/?q={quote_plus(address)}"
 
+    try:
+        start_time_display = datetime.strptime(start_time_str, "%H:%M").strftime("%-I:%M %p")
+    except Exception:
+        start_time_display = start_time_str
+
     return (
         f"[{venue_name}]({game_url})\n"
-        f"{date_label}  {start_time_str}–{end_time_str}\n"
+        f"{date_label}  {start_time_display}\n"
     )
 
 
